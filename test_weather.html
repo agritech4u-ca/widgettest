@@ -18,9 +18,10 @@
     margin-bottom: 5px;
   }
 
-  #location {
-    opacity: 0.8;
-    margin-bottom: 15px;
+  #city {
+    font-size: 16px;
+    opacity: 0.7;
+    margin-bottom: 20px;
   }
 
   #weather {
@@ -57,12 +58,12 @@
 <body>
 
 <h1>🌤 Weather Dashboard</h1>
-<div id="location">Detecting location...</div>
+<div id="city"></div> <!-- optional city/region -->
 <div id="weather"></div>
 
 <script>
 const weatherDiv = document.getElementById("weather");
-const locationDiv = document.getElementById("location");
+const cityDiv = document.getElementById("city");
 
 // Simple weather icons
 function getWeatherIcon(code) {
@@ -75,23 +76,19 @@ function getWeatherIcon(code) {
   return "❔";
 }
 
-// Get city name
+// Optional: get city/region
 function getCity(lat, lon) {
   fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}`)
     .then(res => res.json())
     .then(data => {
-      console.log("Geo Data:", data); // debug log to check the API response
-
       if (data.results && data.results.length > 0) {
         const place = data.results[0];
-        locationDiv.textContent = `${place.name}, ${place.country}`;
-      } else {
-        locationDiv.textContent = "Location found";
+        cityDiv.textContent = `${place.name}, ${place.country}`;
       }
     })
     .catch(err => {
       console.error(err);
-      locationDiv.textContent = "Location unavailable";
+      // leave cityDiv blank if error
     });
 }
 
@@ -101,13 +98,11 @@ function getWeather(lat, lon) {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-
       const days = data.daily.time;
       const maxTemps = data.daily.temperature_2m_max;
       const minTemps = data.daily.temperature_2m_min;
       const rain = data.daily.precipitation_probability_max;
       const codes = data.daily.weathercode;
-
       const feelsLike = data.current_weather.temperature;
 
       weatherDiv.innerHTML = "";
@@ -117,9 +112,7 @@ function getWeather(lat, lon) {
         div.className = "card";
 
         div.innerHTML = `
-          <div>
-  ${new Date(day).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-</div>
+          <div>${new Date(day).toLocaleDateString('en-US', { weekday: 'short' })}</div>
           <div class="icon">${getWeatherIcon(codes[i])}</div>
           <div class="temp">${maxTemps[i]}°C</div>
           <div>Min: ${minTemps[i]}°C</div>
@@ -129,7 +122,6 @@ function getWeather(lat, lon) {
 
         weatherDiv.appendChild(div);
       });
-
     });
 }
 
@@ -140,14 +132,20 @@ function init() {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
 
-        getCity(lat, lon);
+        getCity(lat, lon);   // optional city/region
         getWeather(lat, lon);
       },
       () => {
-        locationDiv.textContent = "Using default location";
-        getWeather(46.1, -60.2);
+        // fallback if geolocation blocked
+        const fallbackLat = 46.1;
+        const fallbackLon = -60.2;
+        getWeather(fallbackLat, fallbackLon);
+        // cityDiv stays blank (optional)
       }
     );
+  } else {
+    // fallback if geolocation not supported
+    getWeather(46.1, -60.2);
   }
 }
 
