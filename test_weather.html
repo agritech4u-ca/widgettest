@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #weather {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .day {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      width: 120px;
+    }
+
+    .temp {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .loading {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌤 Weather Forecast</h1>
+  <div id="status" class="loading">Detecting your location...</div>
+
+  <div id="weather"></div>
+
+  <script>
+    const status = document.getElementById("status");
+    const weatherDiv = document.getElementById("weather");
+
+    function getWeather(lat, lon) {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          status.textContent = "Forecast:";
+
+          const days = data.daily.time;
+          const maxTemps = data.daily.temperature_2m_max;
+          const minTemps = data.daily.temperature_2m_min;
+
+          weatherDiv.innerHTML = "";
+
+          days.forEach((day, index) => {
+            const div = document.createElement("div");
+            div.className = "day";
+
+            div.innerHTML = `
+              <div>${day}</div>
+              <div class="temp">${maxTemps[index]}°C</div>
+              <div>Min: ${minTemps[index]}°C</div>
+            `;
+
+            weatherDiv.appendChild(div);
+          });
+        })
+        .catch(err => {
+          status.textContent = "Failed to load weather.";
+          console.error(err);
+        });
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            getWeather(lat, lon);
+          },
+          () => {
+            status.textContent = "Location blocked. Using default.";
+            // fallback (Cape Breton-ish)
+            getWeather(46.1, -60.2);
+          }
+        );
+      } else {
+        status.textContent = "Geolocation not supported.";
+      }
+    }
+
+    getLocation();
+  </script>
+
+</body>
+</html>
