@@ -52,12 +52,23 @@
     font-size: 30px;
     margin: 5px 0;
   }
+
+  .today {
+    border: 2px solid #38bdf8;
+    background: #334155;
+  }
+
+  .day-label {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
 </style>
 </head>
 
 <body>
 
-<h1>🌤 Weather Dashboard</h1>
+<h1>🌤 Weather for you:</h1>
 <div id="city"></div> <!-- optional city/region -->
 <div id="weather"></div>
 
@@ -83,12 +94,12 @@ function getCity(lat, lon) {
     .then(data => {
       if (data.results && data.results.length > 0) {
         const place = data.results[0];
-        cityDiv.textContent = `${place.name}, ${place.country}`;
+        cityDiv.textContent = `${place.name}, ${place.admin1 || place.country}`;
       }
     })
     .catch(err => {
-      console.error(err);
-      // leave cityDiv blank if error
+      console.error("City fetch error:", err);
+      cityDiv.textContent = ""; // leave blank if error
     });
 }
 
@@ -111,8 +122,15 @@ function getWeather(lat, lon) {
         const div = document.createElement("div");
         div.className = "card";
 
+        // Highlight today
+        if (i === 0) div.classList.add("today");
+
+        const dayLabel = i === 0
+          ? "Today"
+          : new Date(day).toLocaleDateString('en-US', { weekday: 'short' });
+
         div.innerHTML = `
-          <div>${new Date(day).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+          <div class="day-label">${dayLabel}</div>
           <div class="icon">${getWeatherIcon(codes[i])}</div>
           <div class="temp">${maxTemps[i]}°C</div>
           <div>Min: ${minTemps[i]}°C</div>
@@ -122,6 +140,10 @@ function getWeather(lat, lon) {
 
         weatherDiv.appendChild(div);
       });
+    })
+    .catch(err => {
+      console.error("Weather fetch error:", err);
+      weatherDiv.innerHTML = "<p>Unable to load weather data.</p>";
     });
 }
 
@@ -140,12 +162,13 @@ function init() {
         const fallbackLat = 46.1;
         const fallbackLon = -60.2;
         getWeather(fallbackLat, fallbackLon);
-        // cityDiv stays blank (optional)
+        cityDiv.textContent = ""; // leave blank
       }
     );
   } else {
     // fallback if geolocation not supported
     getWeather(46.1, -60.2);
+    cityDiv.textContent = "";
   }
 }
 
