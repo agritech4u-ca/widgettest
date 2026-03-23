@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Test</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="profile.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Your Profile</h2>
+
+  <form id="profileForm">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="firstName">First Name</label>
+        <input type="text" class="form-control" id="firstName" placeholder="First Name">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="lastName">Last Name</label>
+        <input type="text" class="form-control" id="lastName" placeholder="Last Name">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="businessName">Business Name</label>
+      <input type="text" class="form-control" id="businessName" placeholder="Business Name">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" class="form-control" id="email" placeholder="Email">
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <input type="tel" class="form-control" id="phone" placeholder="Phone Number">
+    </div>
+
+    <div class="form-group">
+      <label for="address1">Address 1</label>
+      <input type="text" class="form-control" id="address1" placeholder="Street address">
+    </div>
+
+    <div class="form-group">
+      <label for="address2">Address 2</label>
+      <input type="text" class="form-control" id="address2" placeholder="Apartment, suite, etc.">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label for="city">City</label>
+        <input type="text" class="form-control" id="city" placeholder="City">
+      </div>
+      <div class="form-group col-md-4">
+        <label for="state">Province</label>
+        <select class="form-control" id="state">
+          <option value="">Select Province</option>
+          <option value="AB">Alberta</option>
+          <option value="BC">British Columbia</option>
+          <option value="MB">Manitoba</option>
+          <option value="NB">New Brunswick</option>
+          <option value="NL">Newfoundland and Labrador</option>
+          <option value="NS">Nova Scotia</option>
+          <option value="ON">Ontario</option>
+          <option value="PE">Prince Edward Island</option>
+          <option value="QC">Quebec</option>
+          <option value="SK">Saskatchewan</option>
+          <option value="NT">Northwest Territories</option>
+          <option value="NU">Nunavut</option>
+          <option value="YT">Yukon</option>
+        </select>
+      </div>
+      <div class="form-group col-md-4">
+        <label for="postalCode">Postal Code</label>
+        <input type="text" class="form-control" id="postalCode" placeholder="Postal Code">
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-success">Save</button>
+    </div>
+  </form>
+</div>
+
+<script src="profile.js"></script>
+</body>
+</html>

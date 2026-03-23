@@ -1,0 +1,16 @@
+body {
+  background-color: #f8f9fc;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  color: #2e7d32;
+}
+
+form .form-group label {
+  font-weight: 500;
+}
+
+.btn-success {
+  width: 150px;
+}
