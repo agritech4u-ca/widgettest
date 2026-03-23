@@ -8,19 +8,19 @@
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    background: #0f172a;
     color: white;
     text-align: center;
     padding: 20px;
   }
 
   h1 {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
 
   #city {
     font-size: 16px;
-    opacity: 0.7;
+    opacity: 0.8;
     margin-bottom: 20px;
   }
 
@@ -36,11 +36,6 @@
     padding: 15px;
     border-radius: 15px;
     width: 140px;
-    transition: 0.2s;
-  }
-
-  .card:hover {
-    transform: scale(1.05);
   }
 
   .temp {
@@ -52,31 +47,20 @@
     font-size: 30px;
     margin: 5px 0;
   }
-
-  .today {
-    border: 2px solid #38bdf8;
-    background: #334155;
-  }
-
-  .day-label {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 5px;
-  }
 </style>
 </head>
 
 <body>
 
-<h1>🌤 Weather for you:</h1>
-<div id="city"></div> <!-- optional city/region -->
+<h1>🌤 Weather Dashboard</h1>
+<div id="city"></div>
 <div id="weather"></div>
 
 <script>
 const weatherDiv = document.getElementById("weather");
 const cityDiv = document.getElementById("city");
 
-// Simple weather icons
+// Weather icons based on Open-Meteo codes
 function getWeatherIcon(code) {
   if (code === 0) return "☀️";
   if (code <= 3) return "⛅";
@@ -87,22 +71,25 @@ function getWeatherIcon(code) {
   return "❔";
 }
 
-// Optional: get city/region
-function getCity(lat, lon) {
+// Get city/region, with fallback
+function getCity(lat, lon, fallbackName = "Unknown Location") {
   fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}`)
     .then(res => res.json())
     .then(data => {
       if (data.results && data.results.length > 0) {
         const place = data.results[0];
-        cityDiv.textContent = `${place.name}, ${place.admin1 || place.country}`;
+        cityDiv.textContent = `${place.name || fallbackName}, ${place.admin1 || place.country || ""}`;
+      } else {
+        cityDiv.textContent = fallbackName;
       }
     })
     .catch(err => {
       console.error("City fetch error:", err);
-      cityDiv.textContent = ""; // leave blank if error
+      cityDiv.textContent = fallbackName;
     });
 }
 
+// Fetch weather
 function getWeather(lat, lon) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&current_weather=true&timezone=auto`;
 
@@ -122,53 +109,46 @@ function getWeather(lat, lon) {
         const div = document.createElement("div");
         div.className = "card";
 
-        // Highlight today
-        if (i === 0) div.classList.add("today");
-
-        const dayLabel = i === 0
-          ? "Today"
-          : new Date(day).toLocaleDateString('en-US', { weekday: 'short' });
-
         div.innerHTML = `
-          <div class="day-label">${dayLabel}</div>
           <div class="icon">${getWeatherIcon(codes[i])}</div>
           <div class="temp">${maxTemps[i]}°C</div>
           <div>Min: ${minTemps[i]}°C</div>
           <div>🌧 ${rain[i]}%</div>
           ${i === 0 ? `<div style="margin-top:5px;">Feels: ${feelsLike}°C</div>` : ""}
         `;
-
         weatherDiv.appendChild(div);
       });
     })
     .catch(err => {
-      console.error("Weather fetch error:", err);
       weatherDiv.innerHTML = "<p>Unable to load weather data.</p>";
     });
 }
 
+// Initialize dashboard with geolocation fallback
 function init() {
+  const fallbackLat = 40.1;   // Fallback coordinates
+  const fallbackLon = -74.2;
+  const fallbackCity = "Default Location Name New York"; // Default city name
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
 
-        getCity(lat, lon);   // optional city/region
+        getCity(lat, lon, fallbackCity);
         getWeather(lat, lon);
       },
       () => {
-        // fallback if geolocation blocked
-        const fallbackLat = 46.1;
-        const fallbackLon = -60.2;
+        // geolocation blocked
+        getCity(fallbackLat, fallbackLon, fallbackCity);
         getWeather(fallbackLat, fallbackLon);
-        cityDiv.textContent = ""; // leave blank
       }
     );
   } else {
-    // fallback if geolocation not supported
-    getWeather(46.1, -60.2);
-    cityDiv.textContent = "";
+    // geolocation unsupported
+    getCity(fallbackLat, fallbackLon, fallbackCity);
+    getWeather(fallbackLat, fallbackLon);
   }
 }
 
